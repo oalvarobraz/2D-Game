@@ -2,7 +2,9 @@
 
 O código é um jogo de corrida feito em Python usando o módulo Pygame. O objetivo do jogo é desviar de obstáculos e ganhar o máximo de pontos possível. O jogador pode pular com o personagem usando a tecla "espaço".
 
-![image](https://user-images.githubusercontent.com/114008085/231176559-41d75e02-0ec1-4795-9d9d-79d3a8b20deb.png)
+<div align="center">
+<img src="https://user-images.githubusercontent.com/114008085/231176559-41d75e02-0ec1-4795-9d9d-79d3a8b20deb.png" />
+</div>
 
 
 ## Tecnologias Utilizadas
