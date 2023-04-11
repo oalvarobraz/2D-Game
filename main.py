@@ -1,3 +1,5 @@
+import pickle
+
 import pygame  # Biblioteca de criação de jogos no python
 import os  # Biblioteca para que a gegnte consiga interagir com o computador, pegar as imagens...
 import random
@@ -63,7 +65,9 @@ IMAGEM_GO = [
     pygame.transform.scale2x(img_GO3),
     pygame.transform.scale2x(img_GO4),
 ]
-
+# Iniciando o arquivo para salvar o melhor resultado
+with open("resultado.bin", "wb") as f:
+    pickle.dump(0, f)  # escreve um dicionário vazio no arquivo
 
 pygame.font.init()
 FONTE_PONTOS = pygame.font.SysFont('arial', 50)
@@ -379,107 +383,224 @@ def desenhar_tela_game_over(tela, chao, gameover, nuvens, botao, pontos):
     pygame.display.update()
 
 
+# Definir cores
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 128, 0)
+DARKGREEN = (0, 100, 0)
+FORESTGREEN = (34, 139, 34)
+GRAY = (64, 64, 64)
+
+# Definindo o botão para jogar
+
+# -> Definir a posição do botão
+button_x = (1280 / 2) - (200 / 2)
+button_y = (720 / 2) - (50 / 2)
+
+# -> Definir o retângulo do botão
+button_rect = pygame.Rect(button_x, button_y, 200, 50)
+
+# -> Criar o texto do botão
+font = pygame.font.Font(None, 36)
+text = font.render("Jogar", True, BLACK)
+
+# Definindo o botão para ver historico de jogos
+
+# -> Definir a posição do botão
+button_x1 = (1280 / 2) - (200 / 2)
+button_y1 = (1000 / 2) - (50 / 2)
+
+# -> Definir o retângulo do botão
+button_rect_hist = pygame.Rect(button_x1, button_y1, 200, 50)
+
+# -> Criar o texto do botão
+font1 = pygame.font.Font(None, 36)
+text1 = font.render("Historico", True, BLACK)
+
+pygame.init()
+
+
 def main():
+    # Configuração inicial
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
 
-    # Criar botão "recomeçar"
-    # Depois devo criar uma imagem de botão
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+        # Definindo fonte
+        fonte = pygame.font.Font(None, 100)
+
+        # Renderize o texto como uma superfície
+        header_surface = fonte.render("2D - Game", True, BLACK)
+
+        # Defina a posição da superfície
+        header_x = (1280 - header_surface.get_width()) // 2
+        header_y = 60
+
+        # Defininfo a cor de fundo
+        IMAGEM_BACKGROUND = pygame.image.load(os.path.join('imgs', 'background.png'))
+        tela.blit(IMAGEM_BACKGROUND, (0, 0))
+
+        # Desenhando o chão
+        chao = Chao()
+        chao.desenhar(tela)
+
+        # Desenhando o homem
+        homem = Homem(100, TELA_ALTURA - IMAGEM_CHAO.get_height() - IMAGEM_HOMEM[0].get_height() + 30)
+        homem.desenhar(tela)
+
+        # Desenhando o obstaculo
+        obstaculo = Obstaculo(TELA_LARGURA - 300)
+        obstaculo.desenhar(tela)
+
+        # Desenhando o título na tela
+        tela.blit(header_surface, (header_x, header_y))
+
+        # Desenhando o botão na tela
+        pygame.draw.rect(tela, WHITE, button_rect)
+        tela.blit(text, (button_x + 60, button_y + 10))
+
+        # Desenhando o botão na tela
+        pygame.draw.rect(tela, WHITE, button_rect_hist)
+        tela.blit(text1, (button_x1 + 50, button_y1 + 10))
+        pygame.display.update()
+
+        # Verificando se o botão do mouse foi pressionado
+        if pygame.mouse.get_pressed()[0]:
+            mouse_pos = pygame.mouse.get_pos()
+            if button_rect.collidepoint(mouse_pos):
+                jogo(tela)
+            elif button_rect_hist.collidepoint(mouse_pos):
+                resultado = 0
+                if os.path.getsize("resultado.bin") > 0:
+                    with open("resultado.bin", "rb") as f:
+                        resultado = pickle.load(f)
+                run = True
+                button = pygame.Rect(40, 660, 85, 50)
+                while run:
+                    for even in pygame.event.get():
+                        if even.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                        elif pygame.mouse.get_pressed()[0]:
+                            mouse_pos2 = pygame.mouse.get_pos()
+                            if button.collidepoint(mouse_pos2):
+                                run = False  # saia do loop quando o botão "Home" é clicado
+
+                    # Definindo fonte
+                    fonte = pygame.font.Font(None, 24)
+
+                    text3 = fonte.render("Home", True, BLACK)
+
+                    # Definindo a tela do historico
+                    # Definindo fonte
+                    fonte = pygame.font.Font(None, 100)
+
+                    # Defininfo a cor de fundo
+                    IMAGEM_BACKGROUND = pygame.image.load(os.path.join('imgs', 'background.png'))
+                    tela.blit(IMAGEM_BACKGROUND, (0, 0))
+
+                    # Renderize o texto como uma superfície
+                    header_surface = fonte.render("Historico", True, BLACK)
+
+                    # Defina a posição da superfície
+                    header_x = (1280 - header_surface.get_width()) // 2
+                    header_y = 60
+
+                    # Desenhando o chão
+                    chao = Chao()
+                    chao.desenhar(tela)
+
+                    # Desenhando o botão na tela
+                    pygame.draw.rect(tela, WHITE, button)
+
+                    tela.blit(text3, (60, 680))
+
+                    # Desenhe a superfície na tela
+                    tela.blit(header_surface, (header_x, header_y))
+
+                    fonte = pygame.font.Font(None, 36)
+
+                    text2 = fonte.render(f'Recorde atual: {resultado}', True, BLACK)
+                    tela.blit(text2, (button_x + 25, button_y + 30))
+
+                    pygame.display.update()
+
+
+def jogo(tela):
     botao_recomecar = Botao(TELA_LARGURA / 2 - IMAGEM_BOTAO.get_width() / 2, TELA_ALTURA / 2 + 50, IMAGEM_BOTAO)
-
     homens, passaros, obstaculos, nuvens, chao, pontos = resetar_jogo()
-
     relogio = pygame.time.Clock()
-    pygame.font.init()
+    relogio.tick(30)
     rodando = True
-    while rodando:
-        relogio.tick(30)  # Tickrate
 
-        # Interação com o usuário
+    while rodando:
+        # Eventos
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 rodando = False
                 pygame.quit()
                 quit()
-            if evento.type == pygame.KEYDOWN:
-                if evento.key == pygame.K_SPACE:
-                    for homem in homens:
-                        homem.pular()
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+                for homem in homens:
+                    homem.pular()
 
+        # Movimentos
         chao.mover()
-
         for passaro in passaros:
             passaro.mover()
-
         for homem in homens:
             homem.mover()
-
-        colidiu = False
-        adicionar_obstaculo = False
-        remover_obstaculo = []
         for obstaculo in obstaculos:
             for i, homem in enumerate(homens):
                 if obstaculo.colidir(homem):
                     homens.pop(i)
-                    colidiu = True
+                    rodando = False
+                    if os.path.getsize("resultado.bin") > 0:
+                        with open("resultado.bin", "rb") as f:
+                            resultado = pickle.load(f)
+                    else:
+                        resultado = 0
+                    if resultado < pontos:
+                        with open("resultado.bin", "wb") as f:
+                            pickle.dump(pontos, f)
                 if not obstaculo.passou and homem.x > obstaculo.x:
                     obstaculo.passou = True
-                    adicionar_obstaculo = True
+                    obstaculos.append(Obstaculo(TELA_LARGURA))
+                    passaros.append(Passaro(TELA_LARGURA + 400, 100 + random.randint(0, 100)))
             obstaculo.mover()
             if obstaculo.x + obstaculo.imagem.get_width() < 0:
-                remover_obstaculo.append(obstaculo)
-
-        if adicionar_obstaculo:
-            obstaculos.append(Obstaculo(TELA_LARGURA))
-            passaros.append(Passaro(TELA_LARGURA + 400, 100 + random.randint(0, 100)))
-        for obstaculo in remover_obstaculo:
-            obstaculos.remove(obstaculo)
-
-        adicionar_nuvem = False
-        remover_nuvem = []
+                obstaculos.remove(obstaculo)
         for nuvem in nuvens:
-            if nuvem.x < -IMAGEM_NUVEM.get_width():
-                remover_nuvem.append(nuvem)
-                adicionar_nuvem = True
             nuvem.mover()
-        if adicionar_nuvem:
-            nuvens.append(Nuvem())
-        for nuvem in remover_nuvem:
-            nuvens.remove(nuvem)
+            if nuvem.x < -IMAGEM_NUVEM.get_width():
+                nuvens.remove(nuvem)
+                nuvens.append(Nuvem())
 
-        if not colidiu:
-            pontos += 1
-            desenhar_tela(tela, chao, homens, obstaculos, passaros, nuvens, pontos)
-        else:
-            gover = [GameOver()]
-            run = True
-            while run:
-                # Interação com o usuário
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        rodando = False
-                        run = False
-                        pygame.quit()
-                        quit()
-                    # Verificar se o botão "recomeçar" foi clicado
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        if botao_recomecar.x < event.pos[
-                            0] < botao_recomecar.x + botao_recomecar.imagem.get_width() and botao_recomecar.y < \
-                                event.pos[
-                                    1] < botao_recomecar.y + botao_recomecar.imagem.get_height():
-                            homens, passaros, obstaculos, nuvens, chao, pontos = resetar_jogo()
-                            run = False
-                adicionar_nuvem = False
-                remover_nuvem = []
-                for nuvem in nuvens:
-                    if nuvem.x < -IMAGEM_NUVEM.get_width():
-                        remover_nuvem.append(nuvem)
-                        adicionar_nuvem = True
-                    nuvem.mover()
-                if adicionar_nuvem:
-                    nuvens.append(Nuvem())
-                for nuvem in remover_nuvem:
-                    nuvens.remove(nuvem)
-                desenhar_tela_game_over(tela, chao, gover, nuvens, botao_recomecar, pontos)
+        # Pontuação e desenho
+        pontos += 1
+        desenhar_tela(tela, chao, homens, obstaculos, passaros, nuvens, pontos)
+
+    # Tela de Game Over
+    gover = [GameOver()]
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN and botao_recomecar.x < event.pos[
+                0] < botao_recomecar.x + botao_recomecar.imagem.get_width() and botao_recomecar.y < event.pos[1] < botao_recomecar.y + botao_recomecar.imagem.get_height():
+                homens, passaros, obstaculos, nuvens, chao, pontos = resetar_jogo()
+                main()
+        for nuvem in nuvens:
+            nuvem.mover()
+            if nuvem.x < -IMAGEM_NUVEM.get_width():
+                nuvens.remove(nuvem)
+                nuvens.append(Nuvem())
+        desenhar_tela_game_over(tela, chao, gover, nuvens, botao_recomecar, pontos)
 
 
 if __name__ == '__main__':
