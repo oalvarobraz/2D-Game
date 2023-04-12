@@ -66,8 +66,9 @@ IMAGEM_GO = [
     pygame.transform.scale2x(img_GO4),
 ]
 # Iniciando o arquivo para salvar o melhor resultado
-with open("resultado.bin", "wb") as f:
-    pickle.dump(0, f)  # escreve um dicionário vazio no arquivo
+if os.path.getsize("resultado.bin") == 0:
+    with open("resultado.bin", "wb") as f:
+        pickle.dump(0, f) 
 
 pygame.font.init()
 FONTE_PONTOS = pygame.font.SysFont('arial', 50)
