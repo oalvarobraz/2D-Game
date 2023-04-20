@@ -592,6 +592,10 @@ def jogo(tela):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    homens, passaros, obstaculos, nuvens, chao, pontos = resetar_jogo()
+                    main()
             if event.type == pygame.MOUSEBUTTONDOWN and botao_recomecar.x < event.pos[
                 0] < botao_recomecar.x + botao_recomecar.imagem.get_width() and botao_recomecar.y < event.pos[1] < botao_recomecar.y + botao_recomecar.imagem.get_height():
                 homens, passaros, obstaculos, nuvens, chao, pontos = resetar_jogo()
