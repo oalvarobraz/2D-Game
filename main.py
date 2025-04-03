@@ -66,7 +66,7 @@ IMAGEM_GO = [
     pygame.transform.scale2x(img_GO4),
 ]
 # Iniciando o arquivo para salvar o melhor resultado
-if os.path.getsize("resultado.bin") == 0:
+if not os.path.exists("resultado.bin") or os.path.getsize("resultado.bin") == 0:
     with open("resultado.bin", "wb") as f:
         pickle.dump(0, f) 
 
